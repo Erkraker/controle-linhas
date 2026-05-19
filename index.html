@@ -1,10 +1,10 @@
-<!doctype html><html lang=pt-BR><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Controle Linhas V6.1 Calendário</title>
+<!doctype html><html lang=pt-BR><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Controle Linhas V6.3 Agenda</title>
 <style>*{box-sizing:border-box}body{font-family:Arial;margin:0;background:#eef2f7;color:#0f172a}header{position:sticky;top:0;background:#0f172a;color:white;padding:14px;z-index:5}h1{font-size:20px;margin:0}main{max-width:1100px;margin:auto;padding:12px;display:grid;gap:10px}.box,.card,.item{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:12px;box-shadow:0 2px 8px #0001}.cards,.grid,.row,.actions{display:grid;gap:8px}.cards{grid-template-columns:1fr 1fr}input,select,textarea,button{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;background:white}button{border:0;background:#2563eb;color:white;font-weight:bold}button.ok{background:#047857}button.zap{background:#16a34a}button.del{background:#fee2e2;color:#991b1b}button.sec{background:white;color:#0f172a;border:1px solid #cbd5e1}.hint,label,.card span{font-size:12px;color:#64748b}.card b{display:block;font-size:19px}.badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:12px;background:#eef2ff;color:#3730a3;margin:2px}.pago{background:#dcfce7;color:#166534}.pend{background:#fef3c7;color:#92400e}.late{background:#fee2e2;color:#991b1b}.pos{color:#047857;font-weight:bold}.neg{color:#dc2626;font-weight:bold}.title{display:flex;justify-content:space-between;gap:8px}.edit{display:none;border-top:1px solid #e2e8f0;margin-top:10px;padding-top:10px}.open{display:block}@media(min-width:760px){.cards{grid-template-columns:repeat(4,1fr)}.filters{grid-template-columns:2fr 1fr 1fr 1fr auto auto}.row{grid-template-columns:repeat(4,1fr)}.actions{grid-template-columns:repeat(4,1fr)}}</style>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head><body>
-<header><h1>Controle de Linhas V6.1</h1><small>V6 estável • lembrete no Google Calendar • nuvem</small></header><main>
+<header><h1>Controle de Linhas V6.3</h1><small>Agenda mensal automática • Google Calendar • nuvem</small></header><main>
 <section class=box>
 <b>Fase 3 ativa: Backup e restauração</b>
 <div class=hint>
@@ -67,7 +67,7 @@ A sincronização automática real com Drive/Firebase exige credenciais OAuth pr
 <section class=box>
 <div class=title>
   <div><b>Agenda automática</b><div class=hint>Atrasados aparecem primeiro. Depois vencem hoje. Depois próximos vencimentos por data real.</div></div>
-  <button class=sec onclick=notifyOn()>Ativar aviso 06:00</button>
+  
 </div>
 <div style='margin-top:8px' class=grid>
   <div><b>1. Atrasados</b><div class=hint>Ordem: mais atrasado primeiro.</div><div id=late class=grid style='margin-top:8px'></div></div>
@@ -79,13 +79,33 @@ A sincronização automática real com Drive/Firebase exige credenciais OAuth pr
 <section class=box><b>Mensagens</b><div class=row><div><label>PIX e-mail</label><input id=pixE value='ilimitnet16@gmail.com' oninput=saveCfg()></div><div><label>PIX telefone</label><input id=pixT value='19981906228' oninput=saveCfg()></div><div><label>Horário do lembrete</label><input id=notifyTime type=time value='06:00' oninput=saveCfg()></div></div><label>Cobrança</label><textarea id=msgCob rows=5 oninput=saveCfg()>Olá, {cliente}! Tudo bem?\n\nPassando para lembrar que hoje vence sua linha {operadora}.\n\n💰 Valor do plano: {valor_base}\n🎁 Desconto concedido: {desconto}\n✅ Valor a pagar hoje: {valor_final}\n\nPIX para pagamento:\n📧 {pix_email}\n📱 {pix_telefone}</textarea><label>Agradecimento</label><textarea id=msgObg rows=3 oninput=saveCfg()>Pagamento recebido, {cliente}! 🙏\n\nMuito obrigado pela confiança e pela pontualidade.\n\nDeus abençoe.</textarea></section>
 
 <section class=box>
-  <b>Como funciona o calendário</b>
+  <b>Agenda automática no Google Calendar</b>
   <div class=hint>
-    O botão <b>Calendário</b> abre o Google Calendar com o lembrete pronto para salvar.
-    Depois que você salvar no Google Calendar, o aviso fica por conta do próprio calendário do Android/Google.
+    Use <b>Gerar agenda do mês (.ics)</b> para criar um arquivo com todos os vencimentos ativos.
+    Depois importe esse arquivo no Google Calendar. Assim os avisos ficam por conta do próprio Google/Android.
+  </div>
+  <div class='actions grid' style='margin-top:8px'>
+    <button class=zap onclick=downloadMonthlyICS()>Gerar agenda do mês (.ics)</button>
   </div>
 </section>
-<section id=list class=grid></section></main>
+<section class=box>
+  <b>Agenda automática no Google Calendar</b>
+  <div class=hint>
+    Use <b>Gerar agenda do mês (.ics)</b> para criar um arquivo com todos os vencimentos ativos.
+    Depois importe esse arquivo no Google Calendar. Assim os avisos ficam por conta do próprio Google/Android.
+  </div>
+  <div class='actions grid' style='margin-top:8px'>
+    <button class=zap onclick=downloadMonthlyICS()>Gerar agenda do mês (.ics)</button>
+  </div>
+</section><section class=box>
+  <b>Agenda automática no Google Calendar</b>
+  <div class=hint>
+    Clique em <b>Gerar agenda do mês (.ics)</b>, importe o arquivo no Google Calendar e os vencimentos ficam salvos com aviso.
+  </div>
+  <div class='actions grid' style='margin-top:8px'>
+    <button class=zap onclick=downloadMonthlyICS()>Gerar agenda do mês (.ics)</button>
+  </div>
+</section><section id=list class=grid></section></main>
 <script>
 const KEY='linhas_erick_v2',CFG='linhas_erick_cfg_v2',NOT='linhas_erick_notify_v2';
 let data=JSON.parse(localStorage.getItem(KEY)||`[{"id": 1, "v": "01", "op": "TIM", "num": "19981092980", "wa": "", "resp": "Nerias", "cpf": "", "nasc": "", "senha": "3030", "cliente": "Nerias", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 2, "v": "01", "op": "TIM", "num": "19982604231", "wa": "", "resp": "Maria", "cpf": "", "nasc": "", "senha": "1733", "cliente": "Fabiano", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 3, "v": "01", "op": "TIM", "num": "19981667252", "wa": "", "resp": "Thiago", "cpf": "", "nasc": "", "senha": "4796", "cliente": "Thiago", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 4, "v": "10", "op": "TIM", "num": "19981187881", "wa": "", "resp": "Dirceu", "cpf": "", "nasc": "", "senha": "5758", "cliente": "Dora", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 5, "v": "10", "op": "TIM", "num": "19981678522", "wa": "", "resp": "Francisco", "cpf": "", "nasc": "", "senha": "0225", "cliente": "Giovanni", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 6, "v": "10", "op": "TIM", "num": "19981039093", "wa": "", "resp": "Daniel", "cpf": "", "nasc": "", "senha": "4077", "cliente": "Érica", "base": 80, "desc": 0, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 7, "v": "15", "op": "TIM", "num": "19981064152", "wa": "", "resp": "Lucas", "cpf": "", "nasc": "", "senha": "4522", "cliente": "Toca", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": "Toca paga junto com a namorada"}, {"id": 8, "v": "10", "op": "TIM", "num": "19981073124", "wa": "", "resp": "Val", "cpf": "", "nasc": "", "senha": "4000", "cliente": "Bola", "base": 80, "desc": 15, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 9, "v": "10", "op": "TIM", "num": "19982188420", "wa": "", "resp": "Rodi", "cpf": "", "nasc": "", "senha": "1466", "cliente": "Rodi", "base": 100, "desc": 0, "custo": 50, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 10, "v": "10", "op": "TIM", "num": "19982261949", "wa": "", "resp": "Breno", "cpf": "", "nasc": "", "senha": "4993", "cliente": "Breno", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 11, "v": "10", "op": "TIM", "num": "19982262162", "wa": "", "resp": "Matheus", "cpf": "", "nasc": "", "senha": "3010", "cliente": "Matheus", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 12, "v": "10", "op": "TIM", "num": "19981064153", "wa": "", "resp": "Antony", "cpf": "", "nasc": "", "senha": "6895", "cliente": "Antony", "base": 80, "desc": 0, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 13, "v": "10", "op": "TIM", "num": "19981311521", "wa": "", "resp": "Maguila", "cpf": "", "nasc": "", "senha": "8628", "cliente": "Mãe dele", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 14, "v": "10", "op": "TIM", "num": "19983612340", "wa": "", "resp": "Ana", "cpf": "", "nasc": "", "senha": "1152", "cliente": "Jhon", "base": 115, "desc": 0, "custo": 50, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 15, "v": "10", "op": "TIM", "num": "19981187937", "wa": "", "resp": "Dirceu", "cpf": "", "nasc": "", "senha": "1170", "cliente": "Grandão", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 16, "v": "10", "op": "TIM", "num": "19982620880", "wa": "", "resp": "Sandrinho", "cpf": "", "nasc": "", "senha": "4045", "cliente": "Sandrinho", "base": 80, "desc": 25, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 17, "v": "15", "op": "TIM", "num": "19983452887", "wa": "", "resp": "Namorada do Toca", "cpf": "", "nasc": "", "senha": "7033", "cliente": "Namorada do Toca", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": "Toca paga junto"}, {"id": 18, "v": "10", "op": "TIM", "num": "19983892145", "wa": "", "resp": "Evanildo", "cpf": "", "nasc": "", "senha": "3188", "cliente": "Evanildo", "base": 80, "desc": 15, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 19, "v": "10", "op": "TIM", "num": "19981115083", "wa": "", "resp": "Paçoca", "cpf": "", "nasc": "", "senha": "9062", "cliente": "Paçoca", "base": 80, "desc": 5, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 20, "v": "15", "op": "TIM", "num": "19981720097", "wa": "", "resp": "Ricardo Alecrim", "cpf": "", "nasc": "", "senha": "7934", "cliente": "Ricardo Alecrim", "base": 80, "desc": 0, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 21, "v": "20", "op": "TIM", "num": "19981743413", "wa": "", "resp": "Rodi", "cpf": "", "nasc": "", "senha": "1198", "cliente": "Val", "base": 100, "desc": 0, "custo": 50, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 22, "v": "", "op": "TIM", "num": "19981906228", "wa": "", "resp": "Erick", "cpf": "", "nasc": "", "senha": "7342", "cliente": "Erick", "base": 0, "desc": 0, "custo": 20, "abat": 0, "status": "Uso próprio", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 23, "v": "", "op": "TIM", "num": "19982259909", "wa": "", "resp": "Erick", "cpf": "", "nasc": "", "senha": "3317", "cliente": "Erick", "base": 0, "desc": 0, "custo": 20, "abat": 0, "status": "Uso próprio", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 24, "v": "", "op": "TIM", "num": "19981064176", "wa": "", "resp": "Poly", "cpf": "", "nasc": "", "senha": "1879", "cliente": "Poly", "base": 0, "desc": 0, "custo": 20, "abat": 0, "status": "Uso próprio", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 25, "v": "", "op": "TIM", "num": "19981055921", "wa": "", "resp": "Poly", "cpf": "", "nasc": "", "senha": "9045", "cliente": "Poly", "base": 0, "desc": 0, "custo": 20, "abat": 0, "status": "Uso próprio", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 26, "v": "01", "op": "VIVO", "num": "(75) 99804-2680", "wa": "", "resp": "João", "cpf": "", "nasc": "", "senha": "", "cliente": "João", "base": 120, "desc": 0, "custo": 60, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 27, "v": "10", "op": "VIVO", "num": "(75) 99973-0601", "wa": "", "resp": "Jorge", "cpf": "", "nasc": "", "senha": "", "cliente": "Jorge", "base": 120, "desc": 0, "custo": 60, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 28, "v": "20", "op": "VIVO", "num": "", "wa": "", "resp": "Sogra", "cpf": "", "nasc": "", "senha": "", "cliente": "Sogra", "base": 120, "desc": 0, "custo": 60, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": "Número pendente"}, {"id": 29, "v": "20", "op": "VIVO", "num": "19996933669", "wa": "", "resp": "Evaldo", "cpf": "", "nasc": "", "senha": "", "cliente": "Evaldo", "base": 120, "desc": 70, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 30, "v": "", "op": "VIVO", "num": "(75) 99705-3391", "wa": "", "resp": "Poly", "cpf": "", "nasc": "", "senha": "", "cliente": "Poly", "base": 0, "desc": 0, "custo": 60, "abat": 0, "status": "Uso próprio", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 31, "v": "", "op": "VIVO", "num": "(75) 99805-7517", "wa": "", "resp": "", "cpf": "", "nasc": "", "senha": "", "cliente": "", "base": 0, "desc": 0, "custo": 60, "abat": 0, "status": "Linha parada", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 32, "v": "10", "op": "CLARO", "num": "19997221999", "wa": "", "resp": "Nelson", "cpf": "", "nasc": "", "senha": "", "cliente": "Nelson", "base": 50, "desc": 0, "custo": 30, "abat": 0, "status": "Cliente ativo", "pago": "Pendente", "dataPg": "", "obs": ""}, {"id": 33, "v": "01", "op": "SEM OPERADORA", "num": "38991150071", "wa": "", "resp": "Mãe", "cpf": "", "nasc": "", "senha": "7699", "cliente": "Vó", "base": 0, "desc": 0, "custo": 30, "abat": 0, "status": "Custo interno", "pago": "Pendente", "dataPg": "", "obs": "Só custo"}]`),openId=null;
@@ -140,6 +160,72 @@ function calendarDateTime(dateObj){
   }
   return fmt(d)+'/'+fmt(end);
 }
+
+function icsEscape(s){
+  return String(s||'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
+}
+function icsDate(dt){
+  return dt.getFullYear()+String(dt.getMonth()+1).padStart(2,'0')+String(dt.getDate()).padStart(2,'0')+'T'+String(dt.getHours()).padStart(2,'0')+String(dt.getMinutes()).padStart(2,'0')+'00';
+}
+function getReminderTime(){
+  let cfg=JSON.parse(localStorage.getItem(CFG)||'{}');
+  let time=String(cfg.notifyTime||'06:00');
+  let p=time.split(':');
+  return {h:Number(p[0]||6),m:Number(p[1]||0)};
+}
+function buildClientEventICS(x){
+  let d=realDueDate(x);
+  if(!d)return '';
+  let tm=getReminderTime();
+  let start=new Date(d.getFullYear(),d.getMonth(),d.getDate(),tm.h,tm.m,0);
+  let end=new Date(start.getTime()+15*60000);
+  let title='Cobrar '+(x.cliente||x.resp||'cliente')+' - '+(x.op||'linha');
+  let desc=[
+    'Cliente: '+(x.cliente||''),
+    'Responsável: '+(x.resp||''),
+    'Número: '+(x.num||''),
+    'WhatsApp: '+(x.wa||x.num||''),
+    'Valor base: '+br(x.base),
+    'Desconto: '+br(x.desc),
+    'Valor a pagar: '+br(rec(x)),
+    'PIX e-mail: '+(g('pixE')?g('pixE').value:''),
+    'PIX telefone: '+(g('pixT')?g('pixT').value:'')
+  ].join('\n');
+  let uid='linha-'+x.id+'-'+dateKey(d)+'@controle-linhas-erick';
+  return [
+    'BEGIN:VEVENT',
+    'UID:'+icsEscape(uid),
+    'DTSTAMP:'+icsDate(new Date()),
+    'DTSTART:'+icsDate(start),
+    'DTEND:'+icsDate(end),
+    'SUMMARY:'+icsEscape(title),
+    'DESCRIPTION:'+icsEscape(desc),
+    'BEGIN:VALARM',
+    'TRIGGER:-PT0M',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:'+icsEscape(title),
+    'END:VALARM',
+    'END:VEVENT'
+  ].join('\r\n');
+}
+function downloadMonthlyICS(){
+  let clientes=data.filter(x=>x.status=='Cliente ativo'&&realDueDate(x));
+  if(!clientes.length)return alert('Nenhum cliente ativo com vencimento encontrado.');
+  let events=clientes.map(buildClientEventICS).filter(Boolean).join('\r\n');
+  let ics=[
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Controle de Linhas Erick//PT-BR',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    events,
+    'END:VCALENDAR'
+  ].join('\r\n');
+  let now=new Date();
+  download('agenda_vencimentos_'+now.getFullYear()+'_'+String(now.getMonth()+1).padStart(2,'0')+'.ics',ics,'text/calendar;charset=utf-8');
+  alert('Arquivo .ics gerado com '+clientes.length+' vencimento(s). Importe no Google Calendar.');
+}
+
 function openCalendar(id){
   let x=data.find(a=>a.id==id);
   if(!x)return;
@@ -174,7 +260,7 @@ function openCalendarAllDue(){
 function mini(x){
   let d=realDueDate(x), delta=d?diffDays(d,today()):0;
   let info=delta<0?`${Math.abs(delta)} dia(s) atrasado`:(delta==0?'vence hoje':`vence em ${delta} dia(s)`);
-  return `<div class=item><b>${esc(x.cliente||x.resp)}</b><div class=hint>${esc(x.op)} • ${br(rec(x))} • ${formatDate(d)} • ${info}</div><div class=actions><button class=zap onclick="zap(${x.id})">Cobrar</button><button class=sec onclick="openCalendar(${x.id})">Calendário</button><button class=ok onclick="paid(${x.id})">Pago</button></div></div>`
+  return `<div class=item><b>${esc(x.cliente||x.resp)}</b><div class=hint>${esc(x.op)} • ${br(rec(x))} • ${formatDate(d)} • ${info}</div><div class=actions><button class=zap onclick="zap(${x.id})">Cobrar</button><button class=ok onclick="paid(${x.id})">Pago</button></div></div>`
 }
 
 const MESES_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
@@ -275,9 +361,9 @@ function render(){save();let tr=0,tc=0,tl=0;data.forEach(x=>{tr+=rec(x);tc+=cus(
 let ls=data.filter(late).sort((a,b)=>realDueDate(a)-realDueDate(b));
 let ns=data.filter(x=>x.status=='Cliente ativo'&&!due(x)&&!late(x)).sort((a,b)=>realDueDate(a)-realDueDate(b)).slice(0,20);
 g('late').innerHTML=ls.length?`<button class=zap onclick=chargeAllLate()>Cobrar atrasados</button>`+ls.map(mini).join(''):'<div class=hint>Nenhum cliente atrasado.</div>';
-g('due').innerHTML=ds.length?`<button class=zap onclick=chargeAllDue()>Cobrar todos de hoje</button><button class=sec onclick=openCalendarAllDue()>Calendário de hoje</button>`+ds.map(mini).join(''):'<div class=hint>Nenhum cliente pendente vence hoje.</div>';
+g('due').innerHTML=ds.length?`<button class=zap onclick=chargeAllDue()>Cobrar todos de hoje</button>`+ds.map(mini).join(''):'<div class=hint>Nenhum cliente pendente vence hoje.</div>';
 g('nextDue').innerHTML=ns.length?ns.map(mini).join(''):'<div class=hint>Nenhum próximo vencimento encontrado.</div>';
-g('list').innerHTML=filt().map(x=>{let l=luc(x);return `<div class=item><div class=title><div><b>${esc(x.cliente||x.resp||'Sem nome')}</b><div class=hint>${esc(x.num||'sem número')}${x.wa?' • WhatsApp '+esc(x.wa):''}</div></div><div><span class=badge>${esc(x.op)}</span><span class="badge ${x.pago=='Pago'?'pago':'pend'}">${x.pago}</span>${late(x)?'<span class="badge late">Atrasado</span>':''}</div></div><div class='row grid'><div><span class=hint>Próx. venc.</span><br><b>${formatDate(realDueDate(x))}</b></div><div><span class=hint>Base</span><br><b>${br(x.base)}</b></div><div><span class=hint>Desconto</span><br><b>${br(x.desc)}</b></div><div><span class=hint>A pagar</span><br><b>${br(rec(x))}</b></div><div><span class=hint>Custo</span><br><b>${br(cus(x))}</b></div><div><span class=hint>Lucro</span><br><b class=${l<0?'neg':'pos'}>${br(l)}</b></div></div><div class='actions grid'><button onclick="edit(${x.id})">Editar</button><button class=zap onclick="zap(${x.id})">Cobrar</button><button class=sec onclick="openCalendar(${x.id})">Calendário</button>${x.pago=='Pago'?`<button class=sec onclick="pend(${x.id})">Pendente</button>`:`<button class=ok onclick="paid(${x.id})">Pago</button>`}<button class=del onclick="del(${x.id})">Apagar</button></div><div class="edit ${openId==x.id?'open':''}"><div class='row grid'>${field(x,'v','Vencimento')}${sel(x,'op','Operadora',['TIM','VIVO','CLARO','SEM OPERADORA'])}${field(x,'num','Número')}${field(x,'wa','WhatsApp')}${field(x,'resp','Responsável')}${field(x,'cpf','CPF')}${field(x,'nasc','Nascimento')}${field(x,'senha','Senha')}${field(x,'cliente','Cliente')}${field(x,'base','Base','number')}${field(x,'desc','Desconto','number')}${field(x,'custo','Custo','number')}${field(x,'abat','Abatimento','number')}${sel(x,'status','Status',['Cliente ativo','Uso próprio','Linha parada','Custo interno'])}${sel(x,'pago','Pagamento',['Pendente','Pago'])}${field(x,'dataPg','Data Pg')}</div><label>Obs</label><textarea onchange="upd(${x.id},'obs',this.value)">${esc(x.obs)}</textarea></div></div>`}).join('')}
+g('list').innerHTML=filt().map(x=>{let l=luc(x);return `<div class=item><div class=title><div><b>${esc(x.cliente||x.resp||'Sem nome')}</b><div class=hint>${esc(x.num||'sem número')}${x.wa?' • WhatsApp '+esc(x.wa):''}</div></div><div><span class=badge>${esc(x.op)}</span><span class="badge ${x.pago=='Pago'?'pago':'pend'}">${x.pago}</span>${late(x)?'<span class="badge late">Atrasado</span>':''}</div></div><div class='row grid'><div><span class=hint>Próx. venc.</span><br><b>${formatDate(realDueDate(x))}</b></div><div><span class=hint>Base</span><br><b>${br(x.base)}</b></div><div><span class=hint>Desconto</span><br><b>${br(x.desc)}</b></div><div><span class=hint>A pagar</span><br><b>${br(rec(x))}</b></div><div><span class=hint>Custo</span><br><b>${br(cus(x))}</b></div><div><span class=hint>Lucro</span><br><b class=${l<0?'neg':'pos'}>${br(l)}</b></div></div><div class='actions grid'><button onclick="edit(${x.id})">Editar</button><button class=zap onclick="zap(${x.id})">Cobrar</button>${x.pago=='Pago'?`<button class=sec onclick="pend(${x.id})">Pendente</button>`:`<button class=ok onclick="paid(${x.id})">Pago</button>`}<button class=del onclick="del(${x.id})">Apagar</button></div><div class="edit ${openId==x.id?'open':''}"><div class='row grid'>${field(x,'v','Vencimento')}${sel(x,'op','Operadora',['TIM','VIVO','CLARO','SEM OPERADORA'])}${field(x,'num','Número')}${field(x,'wa','WhatsApp')}${field(x,'resp','Responsável')}${field(x,'cpf','CPF')}${field(x,'nasc','Nascimento')}${field(x,'senha','Senha')}${field(x,'cliente','Cliente')}${field(x,'base','Base','number')}${field(x,'desc','Desconto','number')}${field(x,'custo','Custo','number')}${field(x,'abat','Abatimento','number')}${sel(x,'status','Status',['Cliente ativo','Uso próprio','Linha parada','Custo interno'])}${sel(x,'pago','Pagamento',['Pendente','Pago'])}${field(x,'dataPg','Data Pg')}</div><label>Obs</label><textarea onchange="upd(${x.id},'obs',this.value)">${esc(x.obs)}</textarea></div></div>`}).join('')}
 function csv(){let h=['Venc','Operadora','Numero','WhatsApp','Responsavel','CPF','Nascimento','Senha','Cliente','Base','Desconto','A pagar','Custo','Abat','Custo real','Lucro','Status','Pago','DataPg','Obs'];let rows=data.map(x=>[x.v,x.op,x.num,x.wa,x.resp,x.cpf,x.nasc,x.senha,x.cliente,x.base,x.desc,rec(x),x.custo,x.abat,cus(x),luc(x),x.status,x.pago,x.dataPg,x.obs]);download('controle_linhas_v2.csv',[h,...rows].map(r=>r.map(c=>`"${String(c??'').replaceAll('"','""')}"`).join(';')).join('\n'),'text/csv')}
 function download(name,txt,type){let b=new Blob([txt],{type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
 
