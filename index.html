@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Controle de Linhas V7</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<header>
+  <h1>Controle de Linhas V7</h1>
+  <small>arquitetura limpa • atualizações fáceis • nuvem • Android + PC</small>
+</header>
+
+<main class="grid">
+  <section class="box">
+    <div class="title">
+      <div>
+        <b>V7 organizada para manutenção</b>
+        <div class="hint">Daqui pra frente, quase toda atualização será só trocar o arquivo <b>app.js</b>.</div>
+      </div>
+      <span id="cloudStatus" class="badge">Local</span>
+    </div>
+    <div class="actions grid" style="margin-top:8px">
+      <button class="ok" onclick="googleLogin()">Login Google</button>
+      <button class="sec" onclick="cloudLoad()">Carregar nuvem</button>
+      <button class="zap" onclick="cloudSave()">Salvar na nuvem</button>
+      <button class="sec" onclick="backupJSON()">Backup JSON</button>
+    </div>
+  </section>
+
+  <section class="cards">
+    <div class="card"><span>Receita real geral</span><b id="tRec">R$ 0,00</b></div>
+    <div class="card"><span>Custo real geral</span><b id="tCus">R$ 0,00</b></div>
+    <div class="card"><span>Lucro geral</span><b id="tLuc">R$ 0,00</b></div>
+    <div class="card"><span>Linhas</span><b id="tLin">0</b></div>
+  </section>
+
+  <section class="box">
+    <div class="title">
+      <div>
+        <b id="mesTitulo">Resumo do mês</b>
+        <div class="hint">Mostra o mês atual: previsto, recebido, faltando, custos e lucro.</div>
+      </div>
+      <button class="sec" onclick="fecharMes()">Fechar mês</button>
+    </div>
+    <div class="cards" style="margin-top:10px">
+      <div class="card"><span>Receita prevista</span><b id="mPrevista">R$ 0,00</b></div>
+      <div class="card"><span>Receita recebida</span><b id="mRecebida">R$ 0,00</b></div>
+      <div class="card"><span>Falta receber</span><b id="mFalta">R$ 0,00</b></div>
+      <div class="card"><span>Custo real do mês</span><b id="mCusto">R$ 0,00</b></div>
+      <div class="card"><span>Lucro previsto</span><b id="mLucroPrev">R$ 0,00</b></div>
+      <div class="card"><span>Lucro realizado</span><b id="mLucroReal">R$ 0,00</b></div>
+      <div class="card"><span>Pagos</span><b id="mPagos">0</b></div>
+      <div class="card"><span>Pendentes</span><b id="mPendentes">0</b></div>
+    </div>
+  </section>
+
+  <section class="box">
+    <div class="title">
+      <div><b>Agenda automática</b><div class="hint">Atrasados primeiro, depois vencendo hoje, depois próximos vencimentos.</div></div>
+      <button class="sec" onclick="notifyOn()">Ativar aviso 06:00</button>
+    </div>
+    <div class="grid" style="margin-top:8px">
+      <div><b>1. Atrasados</b><div id="late" class="grid" style="margin-top:8px"></div></div>
+      <div><b>2. Vencendo hoje</b><div id="due" class="grid" style="margin-top:8px"></div></div>
+      <div><b>3. Próximos vencimentos</b><div id="nextDue" class="grid" style="margin-top:8px"></div></div>
+    </div>
+  </section>
+
+  <section class="filters grid">
+    <input id="q" placeholder="Buscar nome, número, CPF, WhatsApp ou senha" oninput="render()">
+    <select id="fOp" onchange="render()"><option value="">Operadora</option><option>TIM</option><option>VIVO</option><option>CLARO</option><option>SEM OPERADORA</option></select>
+    <select id="fSt" onchange="render()"><option value="">Status</option><option>Cliente ativo</option><option>Uso próprio</option><option>Linha parada</option><option>Custo interno</option></select>
+    <select id="fPg" onchange="render()"><option value="">Pagamento</option><option>Pago</option><option>Pendente</option></select>
+    <button onclick="add()">Adicionar</button>
+    <button class="sec" onclick="csv()">Exportar</button>
+  </section>
+
+  <section class="box">
+    <b>Mensagens e PIX</b>
+    <div class="row grid">
+      <div><label>PIX e-mail</label><input id="pixE" value="ilimitnet16@gmail.com" oninput="saveCfg()"></div>
+      <div><label>PIX telefone</label><input id="pixT" value="19981906228" oninput="saveCfg()"></div>
+    </div>
+    <label>Cobrança</label>
+    <textarea id="msgCob" rows="5" oninput="saveCfg()">Olá, {cliente}! Tudo bem?
+
+Passando para lembrar que hoje vence sua linha {operadora}.
+
+💰 Valor do plano: {valor_base}
+🎁 Desconto concedido: {desconto}
+✅ Valor a pagar hoje: {valor_final}
+
+PIX para pagamento:
+📧 {pix_email}
+📱 {pix_telefone}</textarea>
+    <label>Agradecimento</label>
+    <textarea id="msgObg" rows="3" oninput="saveCfg()">Pagamento recebido, {cliente}! 🙏
+
+Muito obrigado pela confiança e pela pontualidade.
+
+Deus abençoe.</textarea>
+  </section>
+
+  <section id="list" class="grid"></section>
+</main>
+
+<script src="firebase-config.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
