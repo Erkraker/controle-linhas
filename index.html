@@ -155,7 +155,7 @@ function realDueDate(x){
   if(paidThisMonth(x))return dueDateInMonth(x,1);
   return current;
 }
-function due(x){let d=realDueDate(x);return x.status=='Cliente ativo'&&x.pago!='Pago'&&dateKey(d)==dateKey(today())}function late(x){let d=realDueDate(x);return x.status=='Cliente ativo'&&x.pago!='Pago'&&d&&(today().getTime()>d.getTime())}function chargeAllDue(){data.filter(due).forEach(x=>zap(x.id,'cob'))}function chargeAllLate(){data.filter(late).forEach(x=>zap(x.id,'cob'))}
+function due(x){let d=realDueDate(x);return x.status=='Cliente ativo'&&x.pago!='Pago'&&dateKey(d)==dateKey(today())}function late(x){let d=realDueDate(x);return x.status=='Cliente ativo'&&x.pago!='Pago'&&d&&diffDays(d,today())<0}function chargeAllDue(){data.filter(due).forEach(x=>zap(x.id,'cob'))}function chargeAllLate(){data.filter(late).forEach(x=>zap(x.id,'cob'))}
 function filt(){let q=g('q').value.toLowerCase(),op=g('fOp').value,st=g('fSt').value,pg=g('fPg').value;return data.filter(x=>{let tx=Object.values(x).join(' ').toLowerCase();return(!q||tx.includes(q))&&(!op||x.op==op)&&(!st||x.status==st)&&(!pg||x.pago==pg)}).sort((a,b)=>(n(a.v||99)-n(b.v||99))||String(a.op).localeCompare(b.op)||String(a.cliente).localeCompare(b.cliente))}
 function field(x,k,l,type='text'){return `<div><label>${l}</label><input type="${type}" value="${esc(x[k])}" onchange="upd(${x.id},'${k}',this.value)"></div>`}function sel(x,k,l,arr){return `<div><label>${l}</label><select onchange="upd(${x.id},'${k}',this.value)">${arr.map(o=>`<option ${x[k]==o?'selected':''}>${o}</option>`).join('')}</select></div>`}
 function mini(x){
@@ -260,10 +260,7 @@ function fecharMes(){
 }
 function render(){save();let tr=0,tc=0,tl=0;data.forEach(x=>{tr+=rec(x);tc+=cus(x);tl+=luc(x)});g('tRec').textContent=br(tr);g('tCus').textContent=br(tc);g('tLuc').textContent=br(tl);g('tLuc').className=tl<0?'neg':'pos';g('tLin').textContent=data.length;updateMonthlyPanel();let ds=data.filter(due).sort((a,b)=>realDueDate(a)-realDueDate(b));
 let ls=data.filter(late).sort((a,b)=>realDueDate(a)-realDueDate(b));
-let ns=data.filter(x=>{
-let d=realDueDate(x);
-return x.status=='Cliente ativo'&&x.pago!='Pago'&&d&&(d.getTime()>today().getTime());
-}).sort((a,b)=>realDueDate(a)-realDueDate(b)).slice(0,20);
+let ns=data.filter(x=>x.status=='Cliente ativo'&&!due(x)&&!late(x)).sort((a,b)=>realDueDate(a)-realDueDate(b)).slice(0,20);
 g('late').innerHTML=ls.length?`<button class=zap onclick=chargeAllLate()>Cobrar atrasados</button>`+ls.map(mini).join(''):'<div class=hint>Nenhum cliente atrasado.</div>';
 g('due').innerHTML=ds.length?`<button class=zap onclick=chargeAllDue()>Cobrar todos de hoje</button>`+ds.map(mini).join(''):'<div class=hint>Nenhum cliente pendente vence hoje.</div>';
 g('nextDue').innerHTML=ns.length?ns.map(mini).join(''):'<div class=hint>Nenhum próximo vencimento encontrado.</div>';
