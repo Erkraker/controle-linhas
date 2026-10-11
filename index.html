@@ -1,5 +1,5 @@
 <!doctype html><html lang=pt-BR><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Controle Linhas V6.0.2</title>
-<style>*{box-sizing:border-box}body{font-family:Arial;margin:0;background:#eef2f7;color:#0f172a}header{position:sticky;top:0;background:#0f172a;color:white;padding:14px;z-index:5}h1{font-size:20px;margin:0}main{max-width:1100px;margin:auto;padding:12px;display:grid;gap:10px}.box,.card,.item{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:12px;box-shadow:0 2px 8px #0001}.cards,.grid,.row,.actions{display:grid;gap:8px}.cards{grid-template-columns:1fr 1fr}input,select,textarea,button{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;background:white}button{border:0;background:#2563eb;color:white;font-weight:bold}button.ok{background:#047857}button.zap{background:#16a34a}button.del{background:#fee2e2;color:#991b1b}button.sec{background:white;color:#0f172a;border:1px solid #cbd5e1}.hint,label,.card span{font-size:12px;color:#64748b}.card b{display:block;font-size:19px}.badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:12px;background:#eef2ff;color:#3730a3;margin:2px}.pago{background:#dcfce7;color:#166534}.pend{background:#fef3c7;color:#92400e}.late{background:#fee2e2;color:#991b1b}.pos{color:#047857;font-weight:bold}.neg{color:#dc2626;font-weight:bold}.title{display:flex;justify-content:space-between;gap:8px}.edit{display:none;border-top:1px solid #e2e8f0;margin-top:10px;padding-top:10px}.open{display:block}@media(min-width:760px){.cards{grid-template-columns:repeat(4,1fr)}.filters{grid-template-columns:2fr 1fr 1fr 1fr auto auto}.row{grid-template-columns:repeat(4,1fr)}.actions{grid-template-columns:repeat(4,1fr)}}</style>
+<style>*{box-sizing:border-box}body{font-family:Arial;margin:0;background:#eef2f7;color:#0f172a}header{position:sticky;top:0;background:#0f172a;color:white;padding:14px;z-index:5}h1{font-size:20px;margin:0}main{max-width:1100px;margin:auto;padding:12px;display:grid;gap:10px}.box,.card,.item{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:12px;box-shadow:0 2px 8px #0001}.cards,.grid,.row,.actions{display:grid;gap:8px}.cards{grid-template-columns:1fr 1fr}input,select,textarea,button{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;background:white}button{border:0;background:#2563eb;color:white;font-weight:bold}button.ok{background:#047857}button.zap{background:#16a34a}button.del{background:#fee2e2;color:#991b1b}button.sec{background:white;color:#0f172a;border:1px solid #cbd5e1}.hint,label,.card span{font-size:12px;color:#64748b}.card b{display:block;font-size:19px}.badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:12px;background:#eef2ff;color:#3730a3;margin:2px}.pago{background:#dcfce7;color:#166534}.pend{background:#fef3c7;color:#92400e}.late{background:#fee2e2;color:#991b1b}.pos{color:#047857;font-weight:bold}.neg{color:#dc2626;font-weight:bold}.title{display:flex;justify-content:space-between;gap:8px}.edit{display:none;border-top:1px solid #e2e8f0;margin-top:10px;padding-top:10px}.open{display:block}@media(min-width:760px){.cards{grid-template-columns:repeat(4,1fr)}.filters{grid-template-columns:2fr 1fr 1fr 1fr auto auto}.row{grid-template-columns:repeat(4,1fr)}.actions{grid-template-columns:repeat(4,1fr)}}.painel-checks{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:10px}.painel-checks label{display:flex;align-items:center;gap:8px;font-size:14px;color:#0f172a}.painel-checks input{width:auto;accent-color:#2563eb}.panel-hidden{display:none!important}</style>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -43,8 +43,21 @@ A sincronização automática real com Drive/Firebase exige credenciais OAuth pr
     <div class=hint>Exemplo: {"apiKey":"...","authDomain":"...","projectId":"..."}</div>
   </div>
 </section>
-<section class='cards'><div class=card><span>Receita real</span><b id=tRec></b></div><div class=card><span>Custo real</span><b id=tCus></b></div><div class=card><span>Lucro</span><b id=tLuc></b></div><div class=card><span>Linhas</span><b id=tLin></b></div></section>
-<section class=box>
+<section class=box id=personalizarPainel>
+  <div class=title><div><b>Personalizar painel</b><div class=hint>Oculte seções sem excluir dados. Suas escolhas ficam salvas neste aparelho.</div></div><button class=sec style="width:auto;min-width:110px" onclick="togglePainelConfig()" id=btnPainelConfig>Personalizar</button></div>
+  <div id=painelConfig class=edit>
+    <div class='grid painel-checks'>
+      <label><input type=checkbox data-panel=financeiro onchange="setPanelVisible('financeiro',this.checked)"> Resumo financeiro</label>
+      <label><input type=checkbox data-panel=atrasados onchange="setPanelVisible('atrasados',this.checked)"> Clientes atrasados</label>
+      <label><input type=checkbox data-panel=hoje onchange="setPanelVisible('hoje',this.checked)"> Vencendo hoje</label>
+      <label><input type=checkbox data-panel=proximos onchange="setPanelVisible('proximos',this.checked)"> Próximos vencimentos</label>
+      <label><input type=checkbox data-panel=clientes onchange="setPanelVisible('clientes',this.checked)"> Lista de clientes</label>
+    </div>
+    <div class=actions style="margin-top:10px"><button class=sec onclick="showAllPanels()">Mostrar tudo</button><button class=sec onclick="hideAllPanels()">Ocultar tudo</button></div>
+  </div>
+</section>
+<section id=panelFinanceiro class='cards'><div class=card><span>Receita real</span><b id=tRec></b></div><div class=card><span>Custo real</span><b id=tCus></b></div><div class=card><span>Lucro</span><b id=tLuc></b></div><div class=card><span>Linhas</span><b id=tLin></b></div></section>
+<section id=panelResumoMes class=box>
   <div class=title>
     <div>
       <b id=mesTitulo>Resumo do mês</b>
@@ -70,12 +83,12 @@ A sincronização automática real com Drive/Firebase exige credenciais OAuth pr
   <button class=sec onclick=notifyOn()>Ativar aviso 06:00</button>
 </div>
 <div style='margin-top:8px' class=grid>
-  <div><b>1. Atrasados</b><div class=hint>Ordem: mais atrasado primeiro.</div><div id=late class=grid style='margin-top:8px'></div></div>
-  <div><b>2. Vencendo hoje</b><div class=hint>Somente ativos e pendentes.</div><div id=due class=grid style='margin-top:8px'></div></div>
-  <div><b>3. Próximos vencimentos</b><div class=hint>Se já foi pago neste mês, aparece com vencimento do próximo mês.</div><div id=nextDue class=grid style='margin-top:8px'></div></div>
+  <div id=panelAtrasados><b>1. Atrasados</b><div class=hint>Ordem: mais atrasado primeiro.</div><div id=late class=grid style='margin-top:8px'></div></div>
+  <div id=panelHoje><b>2. Vencendo hoje</b><div class=hint>Somente ativos e pendentes.</div><div id=due class=grid style='margin-top:8px'></div></div>
+  <div id=panelProximos><b>3. Próximos vencimentos</b><div class=hint>Se já foi pago neste mês, aparece com vencimento do próximo mês.</div><div id=nextDue class=grid style='margin-top:8px'></div></div>
 </div>
 </section>
-<section class='filters grid'><input id=q placeholder='Buscar...' oninput=render()><select id=fOp onchange=render()><option value=''>Operadora</option><option>TIM</option><option>VIVO</option><option>CLARO</option><option>SEM OPERADORA</option></select><select id=fSt onchange=render()><option value=''>Status</option><option>Cliente ativo</option><option>Uso próprio</option><option>Linha parada</option><option>Custo interno</option></select><select id=fPg onchange=render()><option value=''>Pagamento</option><option>Pago</option><option>Pendente</option></select><button onclick=add()>Adicionar</button><button class=sec onclick=csv()>Exportar</button></section>
+<section id=panelFiltros class='filters grid'><input id=q placeholder='Buscar...' oninput=render()><select id=fOp onchange=render()><option value=''>Operadora</option><option>TIM</option><option>VIVO</option><option>CLARO</option><option>SEM OPERADORA</option></select><select id=fSt onchange=render()><option value=''>Status</option><option>Cliente ativo</option><option>Uso próprio</option><option>Linha parada</option><option>Custo interno</option></select><select id=fPg onchange=render()><option value=''>Pagamento</option><option>Pago</option><option>Pendente</option></select><button onclick=add()>Adicionar</button><button class=sec onclick=csv()>Exportar</button></section>
 <section class=box><b>Mensagens</b><div class=row><div><label>PIX e-mail</label><input id=pixE value='ilimitnet16@gmail.com' oninput=saveCfg()></div><div><label>PIX telefone</label><input id=pixT value='19981906228' oninput=saveCfg()></div></div><label>Cobrança</label><textarea id=msgCob rows=5 oninput=saveCfg()>Olá, {cliente}! Tudo bem?\n\nPassando para lembrar que hoje vence sua linha {operadora}.\n\n💰 Valor do plano: {valor_base}\n🎁 Desconto concedido: {desconto}\n✅ Valor a pagar hoje: {valor_final}\n\nPIX para pagamento:\n📧 {pix_email}\n📱 {pix_telefone}</textarea><label>Agradecimento</label><textarea id=msgObg rows=3 oninput=saveCfg()>Pagamento recebido, {cliente}! 🙏\n\nMuito obrigado pela confiança e pela pontualidade.\n\nDeus abençoe.</textarea></section>
 <section id=list class=grid></section></main>
 <script>
@@ -155,7 +168,13 @@ function realDueDate(x){
   if(paidThisMonth(x))return dueDateInMonth(x,1);
   return current;
 }
-function due(x){let d=realDueDate(x);return x.status=='Cliente ativo'&&x.pago!='Pago'&&dateKey(d)==dateKey(today())}function late(x){let d=realDueDate(x);return x.status=='Cliente ativo'&&x.pago!='Pago'&&d&&diffDays(d,today())<0}function chargeAllDue(){data.filter(due).forEach(x=>zap(x.id,'cob'))}function chargeAllLate(){data.filter(late).forEach(x=>zap(x.id,'cob'))}
+function due(x){let d=realDueDate(x);return x.status=='Cliente ativo'&&x.pago!='Pago'&&dateKey(d)==dateKey(today())}function late(x){
+  if(x.status!='Cliente ativo') return false;
+  if(x.pago=='Pago') return false;
+  let venc=dueDateInMonth(x,0);
+  if(!venc) return false;
+  return venc.getTime()<today().getTime();
+}function chargeAllDue(){data.filter(due).forEach(x=>zap(x.id,'cob'))}function chargeAllLate(){data.filter(late).forEach(x=>zap(x.id,'cob'))}
 function filt(){let q=g('q').value.toLowerCase(),op=g('fOp').value,st=g('fSt').value,pg=g('fPg').value;return data.filter(x=>{let tx=Object.values(x).join(' ').toLowerCase();return(!q||tx.includes(q))&&(!op||x.op==op)&&(!st||x.status==st)&&(!pg||x.pago==pg)}).sort((a,b)=>(n(a.v||99)-n(b.v||99))||String(a.op).localeCompare(b.op)||String(a.cliente).localeCompare(b.cliente))}
 function field(x,k,l,type='text'){return `<div><label>${l}</label><input type="${type}" value="${esc(x[k])}" onchange="upd(${x.id},'${k}',this.value)"></div>`}function sel(x,k,l,arr){return `<div><label>${l}</label><select onchange="upd(${x.id},'${k}',this.value)">${arr.map(o=>`<option ${x[k]==o?'selected':''}>${o}</option>`).join('')}</select></div>`}
 function mini(x){
@@ -260,7 +279,12 @@ function fecharMes(){
 }
 function render(){save();let tr=0,tc=0,tl=0;data.forEach(x=>{tr+=rec(x);tc+=cus(x);tl+=luc(x)});g('tRec').textContent=br(tr);g('tCus').textContent=br(tc);g('tLuc').textContent=br(tl);g('tLuc').className=tl<0?'neg':'pos';g('tLin').textContent=data.length;updateMonthlyPanel();let ds=data.filter(due).sort((a,b)=>realDueDate(a)-realDueDate(b));
 let ls=data.filter(late).sort((a,b)=>realDueDate(a)-realDueDate(b));
-let ns=data.filter(x=>x.status=='Cliente ativo'&&!due(x)&&!late(x)).sort((a,b)=>realDueDate(a)-realDueDate(b)).slice(0,20);
+let ns=data.filter(x=>{
+  if(x.status!='Cliente ativo') return false;
+  let d=realDueDate(x);
+  if(!d) return false;
+  return d.getTime()>=today().getTime();
+}).sort((a,b)=>realDueDate(a)-realDueDate(b)).slice(0,20);
 g('late').innerHTML=ls.length?`<button class=zap onclick=chargeAllLate()>Cobrar atrasados</button>`+ls.map(mini).join(''):'<div class=hint>Nenhum cliente atrasado.</div>';
 g('due').innerHTML=ds.length?`<button class=zap onclick=chargeAllDue()>Cobrar todos de hoje</button>`+ds.map(mini).join(''):'<div class=hint>Nenhum cliente pendente vence hoje.</div>';
 g('nextDue').innerHTML=ns.length?ns.map(mini).join(''):'<div class=hint>Nenhum próximo vencimento encontrado.</div>';
@@ -520,5 +544,31 @@ async function cloudLoad(){
   }
 }
 
-loadCfg();loadFirebaseConfig();finishRedirectLogin();render();tests();setInterval(()=>checkNotify(false),60000);checkNotify(false);
+
+// Preferências visuais locais: nunca alteram os registros dos clientes.
+const PANEL_PREF_KEY='linhas_erick_paineis_v1';
+const PANEL_NAMES=['financeiro','atrasados','hoje','proximos','clientes'];
+const PANEL_TARGETS={financeiro:['panelFinanceiro','panelResumoMes'],atrasados:['panelAtrasados'],hoje:['panelHoje'],proximos:['panelProximos'],clientes:['panelFiltros','list']};
+function readPanelPrefs(){
+  try { const saved=JSON.parse(localStorage.getItem(PANEL_PREF_KEY)||'{}'); return saved && typeof saved==='object'&&!Array.isArray(saved)?saved:{}; }
+  catch(e){return {}}
+}
+function applyPanelPrefs(){
+  const prefs=readPanelPrefs();
+  PANEL_NAMES.forEach(name=>{
+    const visible=prefs[name]!==false;
+    PANEL_TARGETS[name].forEach(id=>{const el=g(id);if(el)el.classList.toggle('panel-hidden',!visible)});
+    const input=document.querySelector('[data-panel="'+name+'"]');if(input)input.checked=visible;
+  });
+}
+function setPanelVisible(name,visible){
+  if(!PANEL_NAMES.includes(name))return;
+  const prefs=readPanelPrefs();prefs[name]=Boolean(visible);
+  localStorage.setItem(PANEL_PREF_KEY,JSON.stringify(prefs));applyPanelPrefs();
+}
+function showAllPanels(){localStorage.removeItem(PANEL_PREF_KEY);applyPanelPrefs()}
+function hideAllPanels(){const prefs={};PANEL_NAMES.forEach(name=>prefs[name]=false);localStorage.setItem(PANEL_PREF_KEY,JSON.stringify(prefs));applyPanelPrefs()}
+function togglePainelConfig(){g('painelConfig').classList.toggle('open')}
+
+loadCfg();loadFirebaseConfig();finishRedirectLogin();render();applyPanelPrefs();tests();setInterval(()=>checkNotify(false),60000);checkNotify(false);
 </script></body></html>
